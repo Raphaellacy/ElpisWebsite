@@ -4,6 +4,7 @@
   "description": "Elpis Literary House - Digital Stories Live Forever",
   "main": "index.html",
   "scripts": {
+    "build": "echo 'Static site build complete'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
