@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generating Insight Report | Elpis Literary House</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #fdfbf7;
+            color: #1a1a2e;
+            text-align: center;
+            padding: 40px;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 50px;
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 {
+            color: #d4af37;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+        }
+        .status-box {
+            margin: 40px 0;
+        }
+        /* ✅ ANIMATION */
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+        .spinner {
+            font-size: 4em;
+            margin: 20px 0;
+            animation: spin 2s infinite linear;
+            display: inline-block;
+            color: #d4af37;
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #eee;
+            border-radius: 10px;
+            margin: 20px auto;
+            max-width: 400px;
+            height: 12px;
+            overflow: hidden;
+            border: 1px solid #ccc;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #d4af37;
+            transition: width 0.5s ease-in-out;
+        }
+        .message {
+            font-size: 1.2em;
+            color: #555;
+            margin-top: 20px;
+            min-height: 1.5em;
+        }
+        .security-note {
+            font-size: 0.9em;
+            color: #856404;
+            margin-top: 30px;
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            display: inline-block;
+            border: 1px solid #ffeeba;
+            max-width: 600px;
+        }
+        .btn-download {
+            display: none; /* Hidden until ready */
+            margin-top: 30px;
+            padding: 15px 40px;
+            background-color: #d4af37;
+            color: #1a1a2e;
+            font-weight: bold;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .btn-download:hover {
+            background-color: #1a1a2e;
+            color: #d4af37;
+        }
+        .nav-links {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .nav-links a {
+            color: #1a1a2e;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Elpis Insight Analysis</h1>
+        
+        <div class="status-box" id="loadingSection">
+            <div class="spinner">🌀</div>
+            <h2 style="color: #1a1a2e;">Analyzing Your Manuscript...</h2>
+            <p class="message" id="statusMessage">Connecting to AI Agents...</p>
+            
+            <div class="progress-container">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+            
+            <p style="font-size: 0.9em; color: #888; margin-top: 10px;">
+                Please do not close this tab. This process takes approximately 60 seconds.
+            </p>
+        </div>
+
+        <!-- ✅ DOWNLOAD SECTION (Hidden Initially) -->
+        <div id="downloadSection" style="display: none;">
+            <div style="font-size: 4em; margin: 20px 0;">✅</div>
+            <h2 style="color: #1a1a2e;">Your Blueprint is Ready!</h2>
+            <p style="color: #555; font-size: 1.1em;">
+                Our AI has completed the market analysis, competitor review, and launch strategy for your e-Book.
+            </p>
+            
+            <a id="downloadLink" href="#" target="_blank" class="btn-download">
+                ⬇️ DOWNLOAD YOUR INSIGHT REPORT
+            </a>
+            
+            <br>
+            <div class="security-note">
+                🔒 <strong>Security Note:</strong> Your manuscript has been permanently deleted from our servers as per our privacy policy. Please save your report locally.
+            </div>
+        </div>
+
+        <div class="nav-links">
+            <a href="index.html">Home</a> | 
+            <a href="insight.html">Back to Insight</a>
+        </div>
+    </div>
+
+    <script>
+        // ✅ GET HASH AND LANGUAGE FROM URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const manuscriptHash = urlParams.get('hash');
+        const language = urlParams.get('lang') || 'English';
+
+        if (!manuscriptHash) {
+            document.body.innerHTML = "<div class='container'><h1>Error</h1><p>No manuscript found. Please start over.</p></div>";
+        } else {
+            startRealAnalysis(manuscriptHash, language);
+        }
+
+        async function startRealAnalysis(hash, lang) {
+            const progressBar = document.getElementById('progressBar');
+            const statusMessage = document.getElementById('statusMessage');
+            const loadingSection = document.getElementById('loadingSection');
+            const downloadSection = document.getElementById('downloadSection');
+            const downloadLink = document.getElementById('downloadLink');
+
+            // Simulate initial progress while connecting
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width < 90) {
+                    width += 5;
+                    progressBar.style.width = width + '%';
+                }
+            }, 200);
+
+            try {
+                // ✅ CALL THE GENERATE-REPORT FUNCTION
+                const response = await fetch('/.netlify/functions/generate-report', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        manuscriptHash: hash, 
+                        bookTitle: "Insight_Report", // Placeholder, backend uses hash
+                        authorName: "Author",       // Placeholder, backend uses hash
+                        language: lang 
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.ipfsHash) {
+                    clearInterval(interval);
+                    progressBar.style.width = '100%';
+                    statusMessage.innerText = "Analysis Complete!";
+                    
+                    // Wait a moment for effect
+                    setTimeout(() => {
+                        loadingSection.style.display = 'none';
+                        downloadSection.style.display = 'block';
+                        
+                        // ✅ FIXED: USE HARDCODED GATEWAY URL
+                        downloadLink.href = `https://gateway.pinata.cloud/ipfs/${result.ipfsHash}`;
+                    }, 1000);
+
+                } else {
+                    throw new Error(result.error || "Failed to generate report");
+                }
+
+            } catch (error) {
+                clearInterval(interval);
+                statusMessage.innerText = "Error: " + error.message;
+                statusMessage.style.color = "red";
+            }
+        }
+    </script>
+</body>
+</html>

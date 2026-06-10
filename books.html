@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WCTX7BG2M5"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-WCTX7BG2M5');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elpis e-Book Library</title>
+    <style>
+        body { font-family: 'Georgia', serif; background-color: #fdfbf7; color: #1a1a2e; text-align: center; padding: 40px; margin: 0; }
+        h1 { font-size: 2.5em; margin-bottom: 10px; letter-spacing: 2px; }
+        .nav-container { margin-bottom: 30px; }
+        .back-link { display: inline-block; color: #d4af37; text-decoration: none; font-weight: bold; border: 1px solid #d4af37; padding: 8px 15px; border-radius: 5px; margin: 0 5px; transition: all 0.3s ease; }
+        .back-link:hover { background-color: #d4af37; color: #fff; }
+        .book-shelf { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 20px; }
+        .book-card { background: white; border: 2px solid #d4af37; border-radius: 10px; width: 300px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: transform 0.3s ease; display: flex; flex-direction: column; align-items: center; }
+        .book-card:hover { transform: translateY(-10px); box-shadow: 0 8px 16px rgba(212, 175, 55, 0.4); }
+        .book-cover { width: 100%; height: 200px; background-color: #eee; display: flex; align-items: center; justify-content: center; color: #888; margin-bottom: 15px; border-radius: 5px; font-style: italic; border: 1px solid #ddd; }
+        .book-title { font-size: 1.2em; font-weight: bold; margin-bottom: 5px; color: #1a1a2e; }
+        .book-author { color: #666; font-size: 0.9em; margin-bottom: 5px; }
+        .book-price { color: #d4af37; font-weight: bold; font-size: 1.1em; margin-bottom: 15px; }
+        
+        /* ✅ ORIGINAL BEAUTIFUL BUTTON STYLE (Restored) */
+        .buy-btn { 
+            background-color: #1a1a2e; 
+            color: #d4af37; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            width: 100%; 
+            transition: all 0.3s ease; 
+            margin-bottom: 10px; 
+        }
+        .buy-btn:hover { 
+            background-color: #d4af37; 
+            color: #1a1a2e; 
+        }
+
+        /* ✅ NEW STRIPE BUTTON STYLE (Matching Elegance) */
+        .btn-card { 
+            background-color: #635bff; /* Stripe Purple */
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            width: 100%; 
+            transition: all 0.3s ease; 
+            margin-bottom: 10px; 
+        }
+        .btn-card:hover { 
+            background-color: #4b45c2; 
+        }
+
+        .invitation-card { width: 500px; padding: 50px; border: 3px solid #d4af37; background: linear-gradient(to bottom, #fdfbf7, #fff); max-width: 90%; }
+        .loading { font-style: italic; color: #666; grid-column: 1 / -1; }
+        
+        /* ✅ REVIEW STYLES */
+        .reviews-section { width: 100%; text-align: left; margin-top: 15px; padding-top: 10px; }
+        .review-box { background: #f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 10px; font-size: 0.85em; }
+        .review-label { font-weight: bold; color: #d4af37; display: block; margin-bottom: 5px; }
+        .review-text { color: #444; line-height: 1.4; }
+        .no-reviews { font-size: 0.8em; color: #999; font-style: italic; }
+        
+        /* ✅ GOLDEN LINE SEPARATOR */
+        .golden-separator {
+            border: 0;
+            height: 2px;
+            background-image: linear-gradient(to right, rgba(212, 175, 55, 0), rgba(212, 175, 55, 0.75), rgba(212, 175, 55, 0));
+            margin: 20px 0;
+        }
+
+        /* ✅ STYLES FOR REVIEW FORM */
+        .review-form-container { width: 100%; text-align: left; margin-top: 15px; padding-top: 15px; }
+        .review-form-container h4 { margin: 0 0 10px 0; color: #1a1a2e; font-size: 1em; }
+        .review-form-container input, .review-form-container select, .review-form-container textarea { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: 'Georgia', serif; }
+        .review-submit-btn { background-color: #d4af37; color: #1a1a2e; border: none; padding: 8px; width: 100%; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .review-submit-btn:hover { background-color: #1a1a2e; color: #d4af37; }
+        .review-msg { font-size: 0.8em; margin-top: 5px; font-weight: bold; }
+
+        /* ✅ THANK YOU POP-UP STYLES */
+        #thankYouModal {
+            display: none; 
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5); 
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .thankYouContent {
+            background-color: #fff;
+            border: 2px solid #d4af37;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .thankYouContent h2 { color: #d4af37; margin-top: 0; }
+        .thankYouContent p { color: #1a1a2e; line-height: 1.6; }
+        .closeBtn {
+            background-color: #1a1a2e;
+            color: #d4af37;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        .closeBtn:hover { background-color: #d4af37; color: #1a1a2e; }
+    </style>
+</head>
+<body>
+    <h1>The Elpis e-Book Library</h1>
+    <div class="nav-container">
+        <a href="index.html" class="back-link">← Home</a>
+        <a href="story.html" class="back-link">Our Story</a>
+        <a href="manifesto.html" class="back-link">Our Manifesto</a>
+        <a href="contact.html" class="back-link">Contact Us</a>
+        <a href="insight.html" class="back-link">Get Insight</a>
+        <a href="upload.html" class="back-link" style="background:#d4af37; color:#1a1a2e;">Upload e-Book</a>
+    </div>
+
+    <div class="book-shelf">
+        <div class="book-card invitation-card">
+            <div style="font-size: 5em; margin-bottom: 20px;">✒️</div>
+            <h2 class="book-title" style="font-size: 2em; color: #1a1a2e; margin-bottom: 15px;">The Shelves Are Open</h2>
+            <p class="book-author" style="font-size: 1.2em; line-height: 1.8; color: #555; margin-bottom: 30px;">
+                Elpis Literary House is a sanctuary for <strong>all writers</strong>.<br>
+                Upload your manuscript now. After your first sale, 3 AI reviews will automatically appear below your book.
+            </p>
+            <a href="upload.html" class="buy-btn" style="display:inline-block; text-decoration:none; width:auto;">Submit Your e-Book</a>
+        </div>
+        <div id="library-container" style="display: contents;">
+            <p class="loading">Scanning Blockchain for new e-Books...</p>
+        </div>
+    </div>
+
+    <!-- ✅ THANK YOU POP-UP HTML -->
+    <div id="thankYouModal">
+        <div class="thankYouContent">
+            <h2>Thank You for Your Purchase!</h2>
+            <p>We hope you enjoy the e-book.<br>Happy reading!</p>
+            <p style="font-style: italic; color: #666;">Kind regards,<br>Elpis Literary House</p>
+            <button class="closeBtn" onclick="document.getElementById('thankYouModal').style.display='none'">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const PINATA_GATEWAY = "https://gateway.pinata.cloud/ipfs/";
+
+        async function loadLibrary() {
+            const container = document.getElementById('library-container');
+            try {
+                const response = await fetch('/.netlify/functions/get-books');
+                const result = await response.json();
+                
+                if (!response.ok) throw new Error(result.error || "Failed to fetch books");
+
+                const data = result;
+                const rows = data.rows;
+                container.innerHTML = ''; 
+                let foundBooks = false;
+
+                for (let row of rows) {
+                    const metadata = row.metadata;
+                    if (metadata.name && metadata.name.includes('_metadata') && !metadata.name.includes('Reviews') && !metadata.name.includes('SALES')) {
+                        const ipfsHash = row.ipfs_pin_hash;
+                        const bookRes = await fetch(`${PINATA_GATEWAY}${ipfsHash}`);
+                        const book = await bookRes.json();
+                        if (book.title && book.price) {
+                            foundBooks = true;
+                            
+                            // 1. FETCH AI REVIEWS
+                            let aiReviews = null;
+                            const aiReviewFile = rows.find(r => r.metadata.name && r.metadata.name.includes(`Reviews_${book.title.replace(/[^a-zA-Z0-9]/g, '_')}`));
+                            if (aiReviewFile) {
+                                const revRes = await fetch(`${PINATA_GATEWAY}${aiReviewFile.ipfs_pin_hash}`);
+                                aiReviews = await revRes.json();
+                            }
+
+                            // 2. FETCH PUBLIC VERIFIED REVIEWS
+                            let publicReviews = [];
+                            const publicReviewFiles = rows.filter(r => 
+                                r.metadata.keyvalues && 
+                                r.metadata.keyvalues.type === "verified_review" && 
+                                r.metadata.keyvalues.book === book.title
+                            );
+                            
+                            for (const file of publicReviewFiles) {
+                                const pubRes = await fetch(`${PINATA_GATEWAY}${file.ipfs_pin_hash}`);
+                                if (pubRes.ok) {
+                                    publicReviews.push(await pubRes.json());
+                                }
+                            }
+
+                            createBookCard(book, aiReviews, publicReviews);
+                        }
+                    }
+                }
+                if (!foundBooks) {
+                    container.innerHTML = `<div class="book-card"><div class="book-cover">📚</div><div class="book-title">Empty Shelf</div><div class="book-author">Be the first to upload!</div></div>`;
+                }
+            } catch (error) {
+                console.error("Error loading library:", error);
+                container.innerHTML = '<p style="grid-column: 1/-1;">Error loading books. Please try again later.</p>';
+            }
+        }
+
+        function createBookCard(book, aiReviews, publicReviews) {
+            const div = document.createElement('div');
+            div.className = 'book-card';
+            
+            let aiReviewsHtml = '<div class="no-reviews">Reviews generated after first sale.</div>';
+            
+            if (aiReviews && aiReviews.reviewer1) {
+                aiReviewsHtml = `
+                    <div class="reviews-section">
+                        <div class="review-box">
+                            <span class="review-label">1. The Literature Agent:</span>
+                            <div class="review-text">${aiReviews.reviewer1.substring(0, 150)}...</div>
+                        </div>
+                        <div class="review-box">
+                            <span class="review-label">2. The Pragmatic Agent:</span>
+                            <div class="review-text">${aiReviews.reviewer2.substring(0, 150)}...</div>
+                        </div>
+                        <div class="review-box" style="border: 1px solid #d4af37;">
+                            <span class="review-label">The Comparison Verdict:</span>
+                            <div class="review-text">${aiReviews.comparisonVerdict.substring(0, 150)}...</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // ✅ DISPLAY PUBLIC VERIFIED REVIEWS WITH NAMES
+            let publicReviewsHtml = '';
+            if (publicReviews && publicReviews.length > 0) {
+                publicReviewsHtml = `<div class="reviews-section"><h4 style="margin:0 0 10px 0; color:#1a1a2e;">Reader Reviews</h4>`;
+                publicReviews.forEach(review => {
+                    const stars = "⭐".repeat(review.rating);
+                    publicReviewsHtml += `
+                        <div class="review-box">
+                            <span class="review-label">${stars} by ${review.reviewerName || 'Anonymous'}</span>
+                            <div class="review-text">${review.reviewText}</div>
+                        </div>
+                    `;
+                });
+                publicReviewsHtml += `</div>`;
+            }
+            
+            // ✅ COMBINE WITH GOLDEN LINE
+            const combinedReviews = `
+                ${aiReviewsHtml}
+                <hr class="golden-separator">
+                ${publicReviewsHtml}
+            `;
+
+            const reviewFormHtml = `
+                <div class="review-form-container">
+                    <h4>✍️ Write a Verified Review</h4>
+                    <input type="hidden" class="review-book-title" value="${book.title}">
+                    <input type="hidden" class="review-author-name" value="${book.author}">
+                    
+                    <input type="email" class="review-reader-email" placeholder="Your Purchase Email" required>
+                    <input type="text" class="review-reader-name" placeholder="Your Name or Pseudonym" required>
+                    
+                    <select class="review-rating">
+                        <option value="5">⭐⭐⭐⭐⭐ (5 Stars)</option>
+                        <option value="4">⭐⭐⭐⭐ (4 Stars)</option>
+                        <option value="3">⭐⭐⭐ (3 Stars)</option>
+                        <option value="2">⭐⭐ (2 Stars)</option>
+                        <option value="1">⭐ (1 Star)</option>
+                    </select>
+                    <textarea class="review-text-input" rows="2" placeholder="Your thoughts..." required></textarea>
+                    <button class="review-submit-btn" onclick="submitReview(this)">Submit Review</button>
+                    <div class="review-msg"></div>
+                </div>
+            `;
+
+            // ✅ RESTORED ORIGINAL BUTTONS + NEW STRIPE BUTTON
+            // Note: We use book.downloadUrl for Stripe. If it's missing, the button will still appear but might error if clicked without it.
+            const downloadUrl = book.downloadUrl || ''; 
+            
+            div.innerHTML = `
+                <div class="book-cover">📖</div>
+                <div class="book-title">${book.title}</div>
+                <div class="book-author">By ${book.author || 'Unknown'}</div>
+                <div class="book-price">€${book.price}</div>
+                
+                <!-- Original Beautiful Crypto Button -->
+                <button class="buy-btn" onclick="buyBook('${book.title}', ${book.price}, '${book.walletAddress}')">Buy with Crypto</button>
+                
+                <!-- New Elegant Card Button -->
+                <button class="btn-card" onclick="buyWithCard('${book.title}', ${book.price}, '${downloadUrl}')">Buy with Card</button>
+                
+                ${combinedReviews}
+                ${reviewFormHtml}
+            `;
+            document.querySelector('.book-shelf').appendChild(div);
+        }
+
+        // ✅ EXISTING CRYPTO BUY FUNCTION
+        async function buyBook(title, price, authorWallet) {
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+            try {
+                const response = await fetch('/.netlify/functions/create-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bookTitle: title, price: price, authorWallet: authorWallet })
+                });
+                const result = await response.json();
+                if (response.ok && result.url) {
+                    window.location.href = result.url;
+                } else {
+                    alert("Error: " + (result.error || "Unknown"));
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                alert("Connection Error: " + error.message);
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // ✅ NEW STRIPE CARD BUY FUNCTION
+        async function buyWithCard(bookTitle, bookPrice, downloadUrl) {
+            if (!downloadUrl) {
+                alert("Download link not configured for this book yet. Please use Crypto for now.");
+                return;
+            }
+            try {
+                const button = event.target;
+                const originalText = button.innerText;
+                button.innerText = "Processing...";
+                button.disabled = true;
+
+                const response = await fetch('/.netlify/functions/create-stripe-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: bookTitle,
+                        price: bookPrice,
+                        currency: 'eur',
+                        downloadUrl: downloadUrl
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    alert('Error creating payment link. Please try again.');
+                    button.innerText = originalText;
+                    button.disabled = false;
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Connection error. Please check your internet.');
+                const button = event.target;
+                button.innerText = "Buy with Card";
+                button.disabled = false;
+            }
+        }
+
+        async function submitReview(btn) {
+            const container = btn.closest('.review-form-container');
+            const msg = container.querySelector('.review-msg');
+            const originalText = btn.innerText;
+            
+            btn.innerText = "Verifying...";
+            btn.disabled = true;
+            msg.innerText = "";
+
+            const bookTitle = container.querySelector('.review-book-title').value;
+            const authorName = container.querySelector('.review-author-name').value;
+            const readerEmail = container.querySelector('.review-reader-email').value;
+            const readerName = container.querySelector('.review-reader-name').value;
+            const rating = container.querySelector('.review-rating').value;
+            const reviewText = container.querySelector('.review-text-input').value;
+
+            try {
+                const response = await fetch('/.netlify/functions/submit-review', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bookTitle, authorName, readerEmail, readerName, rating, reviewText })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    msg.style.color = "green";
+                    msg.innerText = "✅ Verified Review Posted!";
+                    container.querySelector('.review-reader-email').value = "";
+                    container.querySelector('.review-reader-name').value = "";
+                    container.querySelector('.review-text-input').value = "";
+                    setTimeout(loadLibrary, 1500);
+                } else {
+                    throw new Error(result.error);
+                }
+
+            } catch (error) {
+                msg.style.color = "red";
+                msg.innerText = "❌ " + error.message;
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // ✅ CHECK FOR SUCCESSFUL PURCHASE
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === 'true') {
+            document.getElementById('thankYouModal').style.display = 'flex';
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        loadLibrary();
+    </script>
+</body>
+</html>

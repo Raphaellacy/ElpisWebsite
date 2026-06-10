@@ -1,0 +1,19 @@
+{
+  "name": "elpis-literary-house",
+  "version": "1.0.0",
+  "description": "Elpis Literary House - Digital Stories Live Forever",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@netlify/functions": "^2.8.1",
+    "epub-parser": "^0.2.5",
+    "openai": "^4.28.0",
+    "pdf-parse": "^1.1.1",
+    "pinata": "^1.8.1",
+    "stripe": "^14.10.0"
+  },
+  "author": "Elpis Literary House",
+  "license": "ISC"
+}

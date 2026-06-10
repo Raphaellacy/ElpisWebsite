@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WCTX7BG2M5"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-WCTX7BG2M5');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elpis Literary House</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #fdfbf7;
+            color: #1a1a2e;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        header {
+            padding: 40px 20px;
+            background-color: transparent; 
+        }
+        h1 {
+            font-size: 3.5em;
+            margin: 10px 0;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #1a1a2e;
+        }
+        .welcome-text {
+            font-size: 1.8em;
+            font-style: italic;
+            margin-top: 15px;
+            color: #555;
+            font-weight: normal;
+            margin-bottom: 40px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* ✅ INVITATION SECTION (ALONE IN CENTER) */
+        .invitation-section {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 50px;
+        }
+        .invitation-card {
+            background: white;
+            border: 3px solid #d4af37; /* Thicker gold border for uniqueness */
+            border-radius: 10px;
+            width: 350px; /* Slightly wider */
+            padding: 40px;
+            box-shadow: 0 8px 16px rgba(212, 175, 55, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .invitation-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
+        }
+
+        /* ✅ REST OF THE CARDS (TWO ROWS) */
+        .cards-grid {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .card {
+            background: white;
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            width: 280px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 24px rgba(212, 175, 55, 0.3);
+        }
+        .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        .card h3 {
+            color: #1a1a2e;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        .card p {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 25px;
+            flex-grow: 1;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #1a1a2e;
+            color: #d4af37;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 1px solid #1a1a2e;
+        }
+        .btn:hover {
+            background-color: #d4af37;
+            color: #1a1a2e;
+            border-color: #d4af37;
+        }
+        .btn-outline {
+            background-color: transparent;
+            color: #1a1a2e;
+            border: 2px solid #1a1a2e;
+        }
+        .btn-outline:hover {
+            background-color: #1a1a2e;
+            color: #d4af37;
+        }
+        footer {
+            background-color: #f0f0f0;
+            color: #555;
+            padding: 20px;
+            margin-top: 60px;
+            font-size: 0.9em;
+        }
+        footer a {
+            color: #1a1a2e;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* ✅ GOLD GLOW AROUND LOGO */
+        .logo-glow {
+            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.6));
+            transition: filter 0.3s ease;
+        }
+        .logo-glow:hover {
+            filter: drop-shadow(0 0 25px rgba(212, 175, 55, 0.9));
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <!-- ✅ LOGO WITH GOLD GLOW -->
+        <img src="logo.png" alt="Elpis Literary House Logo" class="logo-glow" style="max-width: 350px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;">
+        
+        <h1>Elpis Literary House</h1>
+        <div class="welcome-text">Welcome To Our House</div>
+    </header>
+
+    <div class="container">
+        
+        <!-- ✅ ROW 1: INVITATION (ALONE IN CENTER) -->
+        <div class="invitation-section">
+            <div class="invitation-card">
+                <div class="icon">💌</div>
+                <h3>Invitation</h3>
+                <p>A formal welcome to all writers, from beginners to bestsellers. Join our sanctuary.</p>
+                <a href="invitation.html" class="btn btn-outline">Read Invitation</a>
+            </div>
+        </div>
+
+        <!-- ✅ ROW 2 & 3: THE REST OF THE CARDS -->
+        <div class="cards-grid">
+            
+            <!-- 1. MANIFESTO -->
+            <div class="card">
+                <div class="icon">📜</div>
+                <h3>Our Manifesto</h3>
+                <p>Discover our core beliefs: Triple-Layer AI Reviews, Fair Compensation, and Data Sovereignty.</p>
+                <a href="manifesto.html" class="btn btn-outline">Read Manifesto</a>
+            </div>
+
+            <!-- 2. OUR STORY (CORRECTED) -->
+            <div class="card">
+                <div class="icon">🏰</div>
+                <h3>Our Story</h3>
+                <p>Learn how Elpis became a decentralized sanctuary where stories live forever.</p>
+                <a href="story.html" class="btn btn-outline">Read Our Story</a>
+            </div>
+
+            <!-- 3. SUBMIT MASTERPIECE -->
+            <div class="card">
+                <div class="icon">✒️</div>
+                <h3>Submit Your Masterpiece</h3>
+                <p>Upload your full manuscript instantly. Free validation. Secure Card/Crypto payments.</p>
+                <a href="upload.html" class="btn">Upload e-Book</a>
+            </div>
+
+            <!-- 4. EXPLORE LIBRARY -->
+            <div class="card">
+                <div class="icon">📚</div>
+                <h3>Explore the Library</h3>
+                <p>Discover curated e-Books with triple-layer AI reviews. Support authors directly.</p>
+                <a href="books.html" class="btn btn-outline">Visit Library</a>
+            </div>
+
+            <!-- 5. GET INSIGHT -->
+            <div class="card">
+                <div class="icon">💡</div>
+                <h3>Get Best-Seller Insight</h3>
+                <p>Acquire Enlightenment: A comprehensive 5-part AI analysis blueprint to optimize your work.</p>
+                <a href="insight.html" class="btn btn-outline">Get Insight</a>
+            </div>
+
+            <!-- 6. CONTACT GUARDIAN -->
+            <div class="card">
+                <div class="icon">✉️</div>
+                <h3>Contact Guardian</h3>
+                <p>Questions about payouts or uploads? Send us a secure message directly.</p>
+                <a href="contact.html" class="btn btn-outline">Contact Us</a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Elpis Literary House. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

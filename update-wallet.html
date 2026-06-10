@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Payout Wallet | Elpis Literary House</title>
+    <style>
+        body { 
+            font-family: 'Georgia', serif; 
+            background-color: #fdfbf7; 
+            color: #1a1a2e; 
+            line-height: 1.6; 
+            margin: 0; 
+            padding: 0; 
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 50px auto; 
+            padding: 40px; 
+            background-color: #fff; 
+            border: 1px solid #d4af37; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+        }
+        h1 { 
+            color: #d4af37; 
+            text-align: center; 
+            font-size: 2em; 
+            margin-bottom: 10px; 
+            border-bottom: 2px solid #d4af37; 
+            padding-bottom: 15px; 
+        }
+        .sub-header {
+            text-align: center;
+            font-size: 1.1em;
+            color: #1a1a2e;
+            margin-bottom: 30px;
+        }
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: bold; 
+            color: #1a1a2e; 
+        }
+        input[type="email"], 
+        input[type="text"] { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 20px; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+            font-size: 1em; 
+            box-sizing: border-box; 
+        }
+        .note-small {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: -15px;
+            margin-bottom: 20px;
+            display: block;
+        }
+        .btn-submit { 
+            display: block; 
+            width: 100%; 
+            padding: 15px; 
+            background-color: #d4af37; 
+            color: #1a1a2e; 
+            font-size: 1.2em; 
+            font-weight: bold; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            margin-top: 10px; 
+        }
+        .btn-submit:hover { 
+            background-color: #1a1a2e; 
+            color: #d4af37; 
+        }
+        .btn-home {
+            display: inline-block;
+            margin-top: 20px;
+            color: #1a1a2e;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Update Payout Wallet</h1>
+    <div class="sub-header">Already uploaded your e-Book? Update your payout wallet address here.</div>
+    
+    <!-- ✅ WE KEEP THE ID FOR THE SCRIPT -->
+    <form id="walletUpdateForm">
+        
+        <label for="authorEmail">Email Used for Upload:</label>
+        <input type="email" id="authorEmail" name="Author_Email" required placeholder="author@example.com">
+
+        <label for="walletAddress">New Self-Custodied Wallet Address (Polygon/MATIC):</label>
+        <input type="text" id="walletAddress" name="Polygon_Wallet_Address" required placeholder="0x..." pattern="^0x[a-fA-F0-9]{40}$" title="Please enter a valid Polygon wallet address starting with 0x">
+        
+        <span class="note-small">⚠️ Ensure this is your Polygon (MATIC) address. It must start with 0x.... Incorrect addresses may result in lost funds.</span>
+
+        <button type="submit" class="btn-submit">Update Wallet</button>
+        
+        <div style="text-align: center;">
+            <a href="index.html" class="btn-home">← Back to Home</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('walletUpdateForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const btn = document.querySelector('.btn-submit');
+        const originalText = btn.innerText;
+        btn.innerText = "Sending...";
+        btn.disabled = true;
+
+        const formData = new FormData(this);
+        
+        // ✅ SENDS DATA TO FORMSPREE SO YOU GET AN EMAIL
+        fetch("https://formspree.io/f/mkokeynk", {
+            method: "POST",
+            body: formData,
+            headers: { 'Accept': 'application/json' }
+        }).then(response => {
+            if (response.ok) {
+                alert("✅ Success!\n\nWallet update has been sent to Elpis Administration.\n\nFuture royalties will be sent to this address.");
+                document.getElementById('walletUpdateForm').reset();
+            } else {
+                alert("❌ Error: There was a problem sending your update. Please try again.");
+            }
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }).catch(error => {
+            alert("❌ Error: Network issue. Please check your connection.");
+            btn.innerText = originalText;
+            btn.disabled = false;
+        });
+    });
+</script>
+
+</body>
+</html>

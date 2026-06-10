@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Elpis</title>
+    <style>
+        body { 
+            font-family: 'Georgia', serif; 
+            background-color: #fdfbf7; 
+            color: #1a1a2e; 
+            text-align: center; 
+            padding: 40px; 
+            margin: 0; 
+        }
+        .form-box { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 10px; 
+            border: 2px solid #d4af37; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+            text-align: left; 
+        }
+        h1 { 
+            color: #d4af37; 
+            text-align: center; 
+            margin-bottom: 10px; 
+            letter-spacing: 1px;
+        }
+        p { 
+            margin-bottom: 20px; 
+            text-align: center; 
+            line-height: 1.6;
+        }
+        label { 
+            display: block; 
+            margin-top: 15px; 
+            font-weight: bold; 
+            color: #1a1a2e; 
+        }
+        input, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 5px; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+            font-family: 'Georgia', serif; 
+            box-sizing: border-box; 
+            font-size: 1em;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
+        }
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            margin-top: 25px; 
+            background-color: #1a1a2e; 
+            color: #d4af37; 
+            font-weight: bold; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-size: 1.1em; 
+            transition: 0.3s; 
+        }
+        button:hover { 
+            background-color: #d4af37; 
+            color: #1a1a2e; 
+        }
+        .note { 
+            font-size: 0.85em; 
+            color: #666; 
+            margin-top: 20px; 
+            text-align: center; 
+            font-style: italic; 
+            line-height: 1.4;
+        }
+        .nav-links { 
+            margin-top: 30px; 
+            text-align: center; 
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .nav-links a { 
+            color: #1a1a2e; 
+            margin: 0 10px; 
+            text-decoration: none; 
+            font-weight: bold; 
+            border-bottom: 1px dotted #d4af37; 
+            transition: 0.3s;
+        }
+        .nav-links a:hover {
+            color: #d4af37;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-box">
+        <h1>Contact Elpis Guardian</h1>
+        <p>Have a question about your e-Book, payouts, or our platform?<br>Send us a secure message below.</p>
+        
+        <!-- ✅ SECURE FORM USING FORMSPREE -->
+        <form action="https://formspree.io/f/mkokeynk" method="POST">
+            
+            <label for="name">Your Full Name:</label>
+            <input type="text" id="name" name="name" required placeholder="e.g., Maria Papadopoulos">
+            
+            <label for="email">Your Email Address:</label>
+            <input type="email" id="email" name="email" required placeholder="author@example.com">
+            
+            <label for="message">Your Question, Request, or Query:</label>
+            <textarea id="message" name="message" rows="6" required placeholder="Write your message here..."></textarea>
+            
+            <button type="submit">Send Secure Message</button>
+        </form>
+
+        <!-- ✅ CORRECTED SECURITY NOTE (Clean & Professional) -->
+        <p class="note">
+            🔒 <strong>Security Note:</strong> Your email address is kept private. This form sends your message directly and securely to the Elpis team.
+        </p>
+        
+        <div class="nav-links">
+            <a href="index.html">Home</a> | 
+            <a href="books.html">Library</a> | 
+            <a href="upload.html">Upload e-Book</a> | 
+            <a href="index.html">Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

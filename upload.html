@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Your Masterpiece | Elpis Literary House</title>
+    <style>
+        body { 
+            font-family: 'Georgia', serif; 
+            background-color: #fdfbf7; 
+            color: #1a1a2e; 
+            line-height: 1.6; 
+            margin: 0; 
+            padding: 0; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 40px auto; 
+            padding: 40px; 
+            background-color: #fff; 
+            border: 1px solid #d4af37; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+        }
+        h1 { 
+            color: #d4af37; 
+            text-align: center; 
+            font-size: 2.2em; 
+            margin-bottom: 10px; 
+            border-bottom: 2px solid #d4af37; 
+            padding-bottom: 15px; 
+        }
+        .sub-header {
+            text-align: center;
+            font-size: 1.1em;
+            color: #1a1a2e;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+        h2 { 
+            color: #1a1a2e; 
+            font-size: 1.5em; 
+            margin-top: 30px; 
+            margin-bottom: 15px; 
+            border-left: 4px solid #d4af37; 
+            padding-left: 10px; 
+        }
+        h3 {
+            color: #1a1a2e;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: bold; 
+            color: #1a1a2e; 
+        }
+        input[type="text"], 
+        input[type="email"],
+        select { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 20px; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+            font-size: 1em; 
+            box-sizing: border-box; 
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px dashed #d4af37;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #fff8e1;
+        }
+        /* Golden Info Box for No Wallet */
+        .info-box-gold {
+            background-color: #fff8e1; /* Soft Cream/Gold */
+            border: 1px solid #d4af37; /* Gold Border */
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            color: #1a1a2e;
+            border-radius: 5px;
+        }
+        /* Class for Gold Text Highlights */
+        .gold-text {
+            color: #d4af37;
+            font-weight: bold;
+        }
+        /* Class for Bold Black Text */
+        .bold-black {
+            color: #1a1a2e;
+            font-weight: bold;
+        }
+        .legal-box { 
+            background-color: #fdfbf7; 
+            border: 1px solid #ccc; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-top: 30px; 
+            font-size: 0.95em;
+            text-align: justify;
+        }
+        .legal-list {
+            margin-left: 20px;
+            padding-left: 0;
+            list-style-type: none;
+        }
+        .legal-list li {
+            margin-bottom: 10px;
+        }
+        .checkbox-container {
+            margin-top: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .checkbox-container input {
+            margin-top: 5px;
+            transform: scale(1.2);
+        }
+        .btn-submit { 
+            display: block; 
+            width: 100%; 
+            padding: 15px; 
+            background-color: #d4af37; 
+            color: #1a1a2e; 
+            font-size: 1.2em; 
+            font-weight: bold; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            margin-top: 30px; 
+        }
+        .btn-submit:hover { 
+            background-color: #1a1a2e; 
+            color: #d4af37; 
+        }
+        .btn-home {
+            display: inline-block;
+            margin-top: 20px;
+            color: #1a1a2e;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .btn-home:hover {
+            color: #d4af37;
+        }
+        .note-small {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: -15px;
+            margin-bottom: 20px;
+            display: block;
+        }
+        p { margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Submit Your Masterpiece</h1>
+    <div class="sub-header">Join Elpis. Free Upload. Secure Card/Crypto Payments Enabled.</div>
+    
+    <form id="uploadForm" enctype="multipart/form-data">
+        
+        <!-- Book Details -->
+        <label for="bookTitle">Book Title:</label>
+        <input type="text" id="bookTitle" name="bookTitle" required placeholder="Enter the full title of your e-Book">
+
+        <label for="authorName">Author Name:</label>
+        <input type="text" id="authorName" name="authorName" required placeholder="Your pen name or real name">
+
+        <label for="authorEmail">Author Email (for notifications):</label>
+        <input type="email" id="authorEmail" name="authorEmail" required placeholder="name@example.com">
+
+        <label for="bookLanguage">Language of e-Book:</label>
+        <select id="bookLanguage" name="bookLanguage" required>
+            <option value="" disabled selected>Select the e-book Language</option>
+            <option value="English">English</option>
+            <option value="Greek">Greek</option>
+            <option value="Spanish">Spanish</option>
+            <option value="French">French</option>
+            <option value="German">German</option>
+            <option value="Italian">Italian</option>
+            <option value="Portuguese">Portuguese</option>
+            <option value="Dutch">Dutch</option>
+            <option value="Polish">Polish</option>
+            <option value="Turkish">Turkish</option>
+            <option value="Russian">Russian</option>
+            <option value="Chinese">Chinese</option>
+            <option value="Japanese">Japanese</option>
+            <option value="Korean">Korean</option>
+            <option value="Arabic">Arabic</option>
+            <option value="Hindi">Hindi</option>
+            <option value="Other">Other</option>
+        </select>
+        <span class="note-small">We accept manuscripts in any language. Select "Other" if your language is not listed.</span>
+
+        <label for="bookPrice">Set Your Price (EUR):</label>
+        <select id="bookPrice" name="bookPrice" required>
+            <option value="" disabled selected>Choose a price tier</option>
+            <option value="2.99">2.99 EUR</option>
+            <option value="3.99">3.99 EUR</option>
+            <option value="4.99">4.99 EUR</option>
+            <option value="5.99">5.99 EUR</option>
+            <option value="6.99">6.99 EUR</option>
+            <option value="7.99">7.99 EUR</option>
+            <option value="8.99">8.99 EUR</option>
+        </select>
+        <span class="note-small">You receive <strong>70%</strong> of every e-Book sale directly to your wallet, once per quarter.</span>
+
+        <!-- Wallet Section -->
+        <h2>💰 Payout Details</h2>
+        <label for="walletAddress">Your self-custodied crypto wallet (personal crypto wallet), STARTING WITH 0x.... (for Payouts):</label>
+        <input type="text" id="walletAddress" name="walletAddress" placeholder="0x..." pattern="^0x[a-fA-F0-9]{40}$">
+        <span class="note-small">Ensure this is your <strong>Polygon (MATIC)</strong> address. Quarterly payouts sent here.</span>
+        
+        <!-- GOLDEN INFO BOX WITH SPECIFIC HIGHLIGHTS -->
+        <div class="info-box-gold">
+            <span class="gold-text">ℹ️ No self-custodied crypto wallet?</span><br>
+            <span class="gold-text">YES,</span> You are allowed to upload your <span class="gold-text">e-Book</span> now without one! Upon creating your <span class="gold-text">self-custodied crypto wallet account</span> later, simply <span class="gold-text">COME HERE AGAIN</span> to our <a href="update-wallet.html" class="gold-text" style="text-decoration: underline;">Update Wallet Page</a> to update your payout details with your new wallet address starting with <code>0x...</code> <span class="bold-black">Polygon (MATIC)</span>.
+        </div>
+
+        <!-- File Upload -->
+        <h2>📤 Upload Your Whole Manuscript</h2>
+        <input type="file" id="manuscript" name="manuscript" accept=".epub,.pdf" required>
+        
+        <p style="font-size: 0.9em; color: #1a1a2e; margin-top: 10px;">
+            We accept full manuscripts only. Our AI automatically screens for prohibited content: Pornography, racism, offensive language, terrorism, hate speech, or child sexual abuse material.<br>
+            <em>* Any other content that we, in our sole discretion, determine to be harmful, illegal, or unsuitable for our platform.</em>
+        </p>
+
+        <p style="font-style: italic; color: #1a1a2e; font-weight: bold;">
+            Your e-Book goes live immediately! Three professional AI reviews (2 Agents + 1 Comparison Verdict) will be generated automatically after your 1st sale.
+        </p>
+
+        <!-- Legal Agreement -->
+        <div class="legal-box">
+            <h3 style="margin-top:0;">⚖️ Creator Agreement & Payout Terms</h3>
+            <p>By uploading your e-Book, you, as the Creator and sole Legal Owner, hereby confirm and agree to the following:</p>
+            
+            <p><strong>1. SOLE RESPONSIBILITY AND ABSOLUTE EXCLUSION OF LIABILITY:</strong></p>
+            <ul class="legal-list">
+                <li><strong>a)</strong> You warrant that you are the sole owner of the uploaded content and that it does not infringe upon any third-party rights.</li>
+                <li><strong>b)</strong> Elpis Literary House acts solely as a technical hosting intermediary and <strong>BEARS ABSOLUTELY NO RESPONSIBILITY, LIABILITY, OR OBLIGATION</strong> for any legal disputes, copyright claims, ownership conflicts, or damages arising from your e-Book.</li>
+                <li><strong>c)</strong> You <strong>EXPRESSLY ACKNOWLEDGE</strong> that Elpis Literary House <strong>DOES NOT REVIEW, VALIDATE, VERIFY, OR GUARANTEE</strong> the ownership, accuracy, or legality of any uploaded content prior to publication.</li>
+                <li><strong>d)</strong> <strong>ALL LEGAL LIABILITY RESTS SOLELY AND EXCLUSIVELY WITH YOU, THE UPLOADING AUTHOR.</strong></li>
+                <li><strong>e)</strong> You agree to <strong>fully indemnify and hold harmless</strong> Elpis Literary House, its owners, its agents, and its representatives from ANY claims, actions, lawsuits, damages, liabilities, or legal costs arising and resulting from such disputes.</li>
+            </ul>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="legalAgree" name="legalAgree" required>
+                <label for="legalAgree" style="font-weight: normal; margin-bottom: 0;">
+                    <strong>2. Authors’ Acceptance & Covenant:</strong><br>
+                    I confirm that I have read, confirmed, understood, and agree to the above terms of submission, including the Sole Responsibility and Absolute Exclusion of Liability clause, and I hereby accept and bind myself to the Elpis Principles, Values, and Ethical Guidelines outlined in this Manifesto as the governing rules of this community. Moreover, I declared herewith that I agreed, confirmed and acknowledge all the terms that are set out herewith on the manifesto of Elpis Literary House.
+                </label>
+            </div>
+        </div>
+
+        <!-- Format Info -->
+        <h2>📚 Accepted E-Book Formats</h2>
+        <ul>
+            <li>✅ <strong>EPUB</strong> (Recommended - Best reading experience on all devices)</li>
+            <li>✅ <strong>PDF</strong> (Accepted - Preserves exact layout; ideal for illustrated or poetry works)</li>
+        </ul>
+        <h3>Submission Requirements:</h3>
+        <ul>
+            <li>Maximum file size: 50MB</li>
+            <li>Complete manuscript only (no excerpts or samples)</li>
+            <li>Include proper metadata: title, author name, and optional ISBN</li>
+            <li>Content must be original and free of copyright violations</li>
+        </ul>
+
+        <p style="font-size: 0.9em; color: #666; margin-top: 30px;">
+            <strong>Legal Notice:</strong> By submitting your work, you affirm that you own all rights to the content. Elpis Literary House serves as a distribution platform only and assumes no liability for copyright disputes. Authors maintain full ownership and bear all legal responsibility for their submissions.
+        </p>
+
+        <button type="submit" class="btn-submit">Upload My Masterpiece</button>
+        
+        <div style="text-align: center;">
+            <a href="index.html" class="btn-home">← Back to Home</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const btn = document.querySelector('.btn-submit');
+        const originalText = btn.innerText;
+        btn.innerText = "Uploading & Validating...";
+        btn.disabled = true;
+
+        const formData = new FormData();
+        formData.append('bookTitle', document.getElementById('bookTitle').value);
+        formData.append('authorName', document.getElementById('authorName').value);
+        formData.append('authorEmail', document.getElementById('authorEmail').value);
+        formData.append('language', document.getElementById('bookLanguage').value);
+        formData.append('bookPrice', document.getElementById('bookPrice').value);
+        formData.append('walletAddress', document.getElementById('walletAddress').value || "PENDING");
+        formData.append('manuscript', document.getElementById('manuscript').files[0]);
+
+        try {
+            const response = await fetch('/.netlify/functions/process-book', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert("✅ Success!\n\n" + result.message + "\n\nYour book is now live on Elpis.");
+                document.getElementById('uploadForm').reset();
+            } else {
+                throw new Error(result.error || "Upload failed");
+            }
+
+        } catch (error) {
+            alert("❌ Error: " + error.message);
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    });
+</script>
+
+</body>
+</html>
