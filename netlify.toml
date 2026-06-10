@@ -1,5 +1,5 @@
 [build]
-  publish = "."
+  publish = "dist"
   functions = "netlify/functions"
 
 [[redirects]]
@@ -9,11 +9,7 @@
 
 [functions]
   node_bundler = "esbuild"
+  external_node_modules = ["stripe"]
 
-# ✅ ADD THIS SECTION FOR STRIPE WEBHOOK RAW BODY SUPPORT
-[[functions.external_node_modules]]
-  modules = ["stripe"]
-
-# ✅ ENSURE STRIPE WEBHOOK GETS RAW BODY
 [functions.stripe-webhook]
   included_files = ["netlify/functions/stripe-webhook.mjs"]
