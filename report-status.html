@@ -23,61 +23,17 @@
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
-        h1 {
-            color: #d4af37;
-            font-size: 2.2em;
-            margin-bottom: 20px;
-        }
-        .status-box {
-            margin: 40px 0;
-        }
-        /* ✅ ANIMATION */
-        @keyframes spin { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
-        }
-        .spinner {
-            font-size: 4em;
-            margin: 20px 0;
-            animation: spin 2s infinite linear;
-            display: inline-block;
-            color: #d4af37;
-        }
-        .progress-container {
-            width: 100%;
-            background-color: #eee;
-            border-radius: 10px;
-            margin: 20px auto;
-            max-width: 400px;
-            height: 12px;
-            overflow: hidden;
-            border: 1px solid #ccc;
-        }
-        .progress-bar {
-            width: 0%;
-            height: 100%;
-            background-color: #d4af37;
-            transition: width 0.5s ease-in-out;
-        }
-        .message {
-            font-size: 1.2em;
-            color: #555;
-            margin-top: 20px;
-            min-height: 1.5em;
-        }
-        .security-note {
-            font-size: 0.9em;
-            color: #856404;
-            margin-top: 30px;
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 5px;
-            display: inline-block;
-            border: 1px solid #ffeeba;
-            max-width: 600px;
-        }
-        .btn-download {
-            display: none; /* Hidden until ready */
+        h1 { color: #d4af37; font-size: 2.2em; margin-bottom: 20px; }
+        
+        /* Loading Animation */
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .spinner { font-size: 4em; margin: 20px 0; animation: spin 2s infinite linear; display: inline-block; color: #d4af37; }
+        .progress-container { width: 100%; background-color: #eee; border-radius: 10px; margin: 20px auto; max-width: 400px; height: 12px; overflow: hidden; border: 1px solid #ccc; }
+        .progress-bar { width: 0%; height: 100%; background-color: #d4af37; transition: width 0.5s ease-in-out; }
+        .message { font-size: 1.2em; color: #555; margin-top: 20px; min-height: 1.5em; }
+        
+        /* Buttons */
+        .btn-action {
             margin-top: 30px;
             padding: 15px 40px;
             background-color: #d4af37;
@@ -89,75 +45,68 @@
             cursor: pointer;
             text-decoration: none;
             transition: 0.3s;
+            display: inline-block;
         }
-        .btn-download:hover {
-            background-color: #1a1a2e;
-            color: #d4af37;
-        }
-        .nav-links {
+        .btn-action:hover { background-color: #1a1a2e; color: #d4af37; }
+
+        /* ✅ REPORT PREVIEW STYLES (Hidden until generated) */
+        #reportPreview {
+            display: none;
+            text-align: left;
             margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+            border-top: 2px solid #d4af37;
+            padding-top: 30px;
         }
-        .nav-links a {
-            color: #1a1a2e;
-            margin: 0 15px;
-            text-decoration: none;
-            font-weight: bold;
+        .report-section { margin-bottom: 30px; }
+        .report-section h3 { color: #d4af37; border-left: 4px solid #d4af37; padding-left: 10px; }
+        .report-content { white-space: pre-wrap; background: #f9f9f9; padding: 20px; border-radius: 5px; font-family: 'Arial', sans-serif; font-size: 0.95em; }
+
+        /* ✅ PRINT STYLES */
+        @media print {
+            body { background: white; color: black; }
+            .container { border: none; box-shadow: none; width: 100%; max-width: 100%; }
+            .no-print { display: none !important; }
+            #reportPreview { display: block !important; border: none; }
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Elpis Insight Analysis</h1>
+        <h1 class="no-print">Elpis Insight Analysis</h1>
         
-        <div class="status-box" id="loadingSection">
+        <!-- LOADING SECTION -->
+        <div class="status-box no-print" id="loadingSection">
             <div class="spinner">🌀</div>
             <h2 style="color: #1a1a2e;">Analyzing Your Manuscript...</h2>
             <p class="message" id="statusMessage">Connecting to AI Agents...</p>
-            
-            <div class="progress-container">
-                <div id="progressBar" class="progress-bar"></div>
-            </div>
-            
-            <p style="font-size: 0.9em; color: #888; margin-top: 10px;">
-                Please do not close this tab. This process takes approximately 60 seconds.
-            </p>
+            <div class="progress-container"><div id="progressBar" class="progress-bar"></div></div>
+            <p style="font-size: 0.9em; color: #888; margin-top: 10px;">Please do not close this tab. This process takes approximately 60 seconds.</p>
         </div>
 
-        <!-- ✅ DOWNLOAD SECTION (Hidden Initially) -->
-        <div id="downloadSection" style="display: none;">
-            <div style="font-size: 4em; margin: 20px 0;">✅</div>
-            <h2 style="color: #1a1a2e;">Your Blueprint is Ready!</h2>
-            <p style="color: #555; font-size: 1.1em;">
-                Our AI has completed the market analysis, competitor review, and launch strategy for your e-Book.
-            </p>
-            
-            <a id="downloadLink" href="#" target="_blank" class="btn-download">
-                ⬇️ DOWNLOAD YOUR INSIGHT REPORT
-            </a>
-            
-            <br>
-            <div class="security-note">
-                🔒 <strong>Security Note:</strong> Your manuscript has been permanently deleted from our servers as per our privacy policy. Please save your report locally.
+        <!-- ✅ REPORT PREVIEW & DOWNLOAD SECTION -->
+        <div id="reportPreview">
+            <div id="reportContent"></div>
+            <div class="no-print" style="text-align: center; margin-top: 40px;">
+                <button onclick="window.print()" class="btn-action">🖨️ PRINT / SAVE AS PDF</button>
+                <p style="margin-top: 15px; font-size: 0.9em; color: #666;">
+                    <em>Your manuscript has been permanently deleted from our servers.</em>
+                </p>
             </div>
         </div>
 
-        <div class="nav-links">
-            <a href="index.html">Home</a> | 
-            <a href="insight.html">Back to Insight</a>
+        <div class="nav-links no-print">
+            <a href="index.html">Home</a> | <a href="insight.html">Back to Insight</a>
         </div>
     </div>
 
     <script>
-        // ✅ GET HASH AND LANGUAGE FROM URL
         const urlParams = new URLSearchParams(window.location.search);
         const manuscriptHash = urlParams.get('hash');
         const language = urlParams.get('lang') || 'English';
 
         if (!manuscriptHash) {
-            document.body.innerHTML = "<div class='container'><h1>Error</h1><p>No manuscript found. Please start over.</p></div>";
+            document.body.innerHTML = "<div class='container'><h1>Error</h1><p>No manuscript found.</p></div>";
         } else {
             startRealAnalysis(manuscriptHash, language);
         }
@@ -166,29 +115,18 @@
             const progressBar = document.getElementById('progressBar');
             const statusMessage = document.getElementById('statusMessage');
             const loadingSection = document.getElementById('loadingSection');
-            const downloadSection = document.getElementById('downloadSection');
-            const downloadLink = document.getElementById('downloadLink');
+            const reportPreview = document.getElementById('reportPreview');
+            const reportContent = document.getElementById('reportContent');
 
-            // Simulate initial progress while connecting
             let width = 0;
-            const interval = setInterval(() => {
-                if (width < 90) {
-                    width += 5;
-                    progressBar.style.width = width + '%';
-                }
-            }, 200);
+            const interval = setInterval(() => { if (width < 90) { width += 5; progressBar.style.width = width + '%'; } }, 200);
 
             try {
-                // ✅ CALL THE GENERATE-REPORT FUNCTION
+                // 1. CALL GENERATE FUNCTION
                 const response = await fetch('/.netlify/functions/generate-report', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        manuscriptHash: hash, 
-                        bookTitle: "Insight_Report", // Placeholder, backend uses hash
-                        authorName: "Author",       // Placeholder, backend uses hash
-                        language: lang 
-                    })
+                    body: JSON.stringify({ manuscriptHash: hash, bookTitle: "Insight_Report", authorName: "Author", language: lang })
                 });
 
                 const result = await response.json();
@@ -196,15 +134,25 @@
                 if (response.ok && result.ipfsHash) {
                     clearInterval(interval);
                     progressBar.style.width = '100%';
-                    statusMessage.innerText = "Analysis Complete!";
+                    statusMessage.innerText = "Fetching Final Report...";
                     
-                    // Wait a moment for effect
+                    // 2. FETCH THE GENERATED JSON REPORT FROM PINATA
+                    const reportRes = await fetch(`https://gateway.pinata.cloud/ipfs/${result.ipfsHash}`);
+                    const reportData = await reportRes.json();
+
+                    // 3. RENDER BEAUTIFUL HTML
+                    let html = `<h1 style="text-align:center; color:#d4af37;">${reportData.title}</h1>`;
+                    html += `<p style="text-align:center;"><strong>Author:</strong> ${reportData.author} | <strong>Language:</strong> ${reportData.language}</p><hr>`;
+                    
+                    for (const [key, value] of Object.entries(reportData.reports)) {
+                        html += `<div class="report-section"><h3>${key}</h3><div class="report-content">${value}</div></div>`;
+                    }
+
+                    reportContent.innerHTML = html;
+                    
                     setTimeout(() => {
                         loadingSection.style.display = 'none';
-                        downloadSection.style.display = 'block';
-                        
-                        // ✅ FIXED: USE HARDCODED GATEWAY URL
-                        downloadLink.href = `https://gateway.pinata.cloud/ipfs/${result.ipfsHash}`;
+                        reportPreview.style.display = 'block';
                     }, 1000);
 
                 } else {

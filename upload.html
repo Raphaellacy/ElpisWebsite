@@ -251,13 +251,14 @@
                 <li><strong>c)</strong> You <strong>EXPRESSLY ACKNOWLEDGE AND CONFIRM</strong> that Elpis Literary House <strong>DOES NOT INDEPENDENTLY REVIEW, VALIDATE, VERIFY, INVESTIGATE, OR GUARANTEE</strong> the ownership, accuracy, authenticity, legality, or intellectual-property status of any uploaded content prior to publication. Elpis Literary House relies entirely upon the representations, confirmation, affirmations, and warranties made by the uploading Author.</li>
                 <li><strong>d)</strong> <strong>ALL LEGAL LIABILITY RESTS SOLELY AND EXCLUSIVELY WITH YOU, THE UPLOADING AUTHOR.</strong></li>
                 <li><strong>e)</strong> You agree to <strong>fully indemnify and hold harmless</strong> Elpis Literary House, its owners, its agents, and its representatives from ANY claims, actions, lawsuits, damages, liabilities, or legal costs arising and resulting from such disputes.</li>
+                <li><strong>f) PAYOUT TERMS:</strong> You acknowledge that royalties are calculated based on net sales and are paid <strong>exclusively in cryptocurrency (Polygon/MATIC)</strong> to the wallet address provided by you. Payouts are processed <strong>once per quarter</strong> (every three months). Elpis Literary House is not responsible for any losses due to incorrect wallet addresses provided by the Author or fluctuations in cryptocurrency value.</li>
             </ul>
 
             <div class="checkbox-container">
                 <input type="checkbox" id="legalAgree" name="legalAgree" required>
                 <label for="legalAgree" style="font-weight: normal; margin-bottom: 0;">
                     <strong>2. Authors’ Acceptance & Covenant:</strong><br>
-                    I confirm that I have read, confirmed, understood, and agree to the above terms of submission, including the Sole Responsibility and Absolute Exclusion of Liability clause, and I hereby accept and bind myself to the Elpis Principles, Values, and Ethical Guidelines outlined in this Manifesto as the governing rules of this community. Moreover, I declared herewith that I agreed, confirmed and acknowledge all the terms that are set out herewith on the manifesto of Elpis Literary House.
+                    I confirm that I have read, confirmed, understood, and agree to the above terms of submission, including the Sole Responsibility, Absolute Exclusion of Liability, and Payout Terms clauses. I hereby accept and bind myself to the Elpis Principles, Values, and Ethical Guidelines outlined in this Manifesto as the governing rules of this community. Moreover, I declared herewith that I agreed, confirmed and acknowledge all the terms that are set out herewith on the manifesto of Elpis Literary House.
                 </label>
             </div>
         </div>
@@ -294,22 +295,79 @@
         
         const btn = document.querySelector('.btn-submit');
         const originalText = btn.innerText;
-        btn.innerText = "Uploading & Validating...";
+        btn.innerText = "Getting Secure Upload Link...";
         btn.disabled = true;
 
-        const formData = new FormData();
-        formData.append('bookTitle', document.getElementById('bookTitle').value);
-        formData.append('authorName', document.getElementById('authorName').value);
-        formData.append('authorEmail', document.getElementById('authorEmail').value);
-        formData.append('language', document.getElementById('bookLanguage').value);
-        formData.append('bookPrice', document.getElementById('bookPrice').value);
-        formData.append('walletAddress', document.getElementById('walletAddress').value || "PENDING");
-        formData.append('manuscript', document.getElementById('manuscript').files[0]);
+        const fileInput = document.getElementById('manuscript');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert("Please select a file.");
+            btn.innerText = originalText;
+            btn.disabled = false;
+            return;
+        }
 
         try {
+            // 1. GET SIGNED URL FROM NETLIFY FUNCTION
+            const urlResponse = await fetch('/.netlify/functions/get-signed-url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fileName: file.name })
+            });
+
+            if (!urlResponse.ok) {
+                throw new Error("Failed to get secure upload link.");
+            }
+
+            const urlData = await urlResponse.json();
+            const uploadUrl = urlData.url;
+
+            // 2. UPLOAD FILE DIRECTLY TO PINATA USING SIGNED URL
+            btn.innerText = "Uploading Manuscript to Secure Storage...";
+            
+            const pinataRes = await fetch(uploadUrl, {
+                method: 'PUT',
+                body: file,
+                headers: {
+                    'Content-Type': file.type
+                }
+            });
+
+            if (!pinataRes.ok) {
+                throw new Error("Pinata Upload Failed.");
+            }
+
+            // Pinata returns the IPFS Hash in the response body
+            const pinataData = await pinataRes.json();
+            const ipfsHash = pinataData.IpfsHash || pinataData.hash; 
+
+            if (!ipfsHash) {
+                 throw new Error("Could not retrieve IPFS Hash.");
+            }
+
+            console.log("File uploaded to IPFS:", ipfsHash);
+
+            // 3. SEND DETAILS TO NETLIFY FUNCTION FOR PROCESSING & AI SCREENING
+            btn.innerText = "Registering Book & Starting AI Screening...";
+            
+            const bookData = {
+                bookTitle: document.getElementById('bookTitle').value,
+                authorName: document.getElementById('authorName').value,
+                authorEmail: document.getElementById('authorEmail').value,
+                language: document.getElementById('bookLanguage').value,
+                bookPrice: document.getElementById('bookPrice').value,
+                walletAddress: document.getElementById('walletAddress').value || "PENDING",
+                ipfsHash: ipfsHash,
+                fileName: file.name
+            };
+
             const response = await fetch('/.netlify/functions/process-book', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(bookData)
             });
 
             const result = await response.json();
@@ -318,11 +376,12 @@
                 alert("✅ Success!\n\n" + result.message + "\n\nYour book is now live on Elpis.");
                 document.getElementById('uploadForm').reset();
             } else {
-                throw new Error(result.error || "Upload failed");
+                throw new Error(result.error || "Registration failed");
             }
 
         } catch (error) {
             alert("❌ Error: " + error.message);
+            console.error(error);
         } finally {
             btn.innerText = originalText;
             btn.disabled = false;

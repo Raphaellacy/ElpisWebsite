@@ -9,6 +9,16 @@ const pinata = new PinataSDK({
   pinataGateway: process.env.PINATA_GATEWAY || 'gateway.pinata.cloud'
 });
 
+// Helper to split text into chunks of ~20,000 words
+function splitTextIntoChunks(text, chunkSize = 20000) {
+  const words = text.split(/\s+/);
+  const chunks = [];
+  for (let i = 0; i < words.length; i += chunkSize) {
+    chunks.push(words.slice(i, i + chunkSize).join(" "));
+  }
+  return chunks;
+}
+
 export default async (event) => {
   if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method Not Allowed" };
 
@@ -41,7 +51,7 @@ export default async (event) => {
       await new Promise((resolve, reject) => {
           epub.on("end", () => {
               manuscriptText = epub.flow.map(chapter => chapter.html).join("\n\n");
-              manuscriptText = manuscriptText.replace(/<[^>]*>/g, " "); // Clean HTML tags
+              manuscriptText = manuscriptText.replace(/<[^>]*>/g, " "); 
               resolve();
           });
           epub.on("error", (err) => reject(err));
@@ -57,30 +67,86 @@ export default async (event) => {
       throw new Error("Could not extract sufficient text from the manuscript.");
     }
 
-    // 2. Generate the 5 Insights (Parallel for Speed - FULL MANUSCRIPT)
-    console.log("🤖 Generating 5 AI Reports on Full Manuscript...");
-    const [avatar, competitor, checklist, hooks, social] = await Promise.all([
-      openaiClient.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [{ role: "system", content: "You are a supportive literary agent. Analyze the FULL manuscript to find the ideal reader. Be encouraging but precise." }, { role: "user", content: `Analyze the following FULL manuscript (Language: ${language}) and create a "Target Audience Avatar". Provide a detailed psychological profile of the ideal reader. Manuscript:\n\n${manuscriptText}` }]
-      }),
-      openaiClient.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [{ role: "system", content: "You are a supportive market analyst. Identify competitors but focus on how this book can uniquely shine." }, { role: "user", content: `Analyze the following FULL manuscript (Language: ${language}) and perform a "Competitor Analysis". Identify 3-5 similar best-selling books, their strengths/weaknesses, and how this book can outperform them with its unique voice. Manuscript:\n\n${manuscriptText}` }]
-      }),
-      openaiClient.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [{ role: "system", content: "You are a cheerful launch coach. Create a plan that feels manageable and exciting, not overwhelming." }, { role: "user", content: `Based on the following FULL manuscript (Language: ${language}), create a "30-Day Launch Checklist". A day-by-day action plan that builds momentum gently. Manuscript:\n\n${manuscriptText}` }]
-      }),
-      openaiClient.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [{ role: "system", content: "You are a creative branding expert. Find the heart of the story to create hooks." }, { role: "user", content: `Based on the following FULL manuscript (Language: ${language}), generate 3 powerful "Marketing Hook Suggestions". Unique taglines that capture the soul of the story. Manuscript:\n\n${manuscriptText}` }]
-      }),
-      openaiClient.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [{ role: "system", content: "You are a social media strategist who loves stories. Suggest authentic ways to connect." }, { role: "user", content: `Based on the following FULL manuscript (Language: ${language}), create a "Social Media Content Plan". Specific ideas for posts that feel genuine and engaging. Manuscript:\n\n${manuscriptText}` }]
-      })
-    ]);
+    // 2. CHECK SIZE AND CHUNK IF NECESSARY
+    const wordCount = manuscriptText.split(/\s+/).length;
+    console.log(`📊 Manuscript Word Count: ${wordCount}`);
+
+    let avatarText, competitorText, checklistText, hooksText, socialText;
+
+    if (wordCount > 80000) {
+      console.log("⚠️ Large Manuscript Detected. Using Chunked Analysis...");
+      const chunks = splitTextIntoChunks(manuscriptText, 20000);
+      
+      // For large books, we analyze the first chunk for Hooks/Avatar (usually established early)
+      // and summarize the rest for Competitors/Checklist. 
+      // To keep it simple and fast, we will analyze the FIRST and LAST chunks for a balanced view.
+      
+      const firstChunk = chunks[0];
+      const lastChunk = chunks[chunks.length - 1];
+      const combinedSample = `${firstChunk}\n\n...\n\n${lastChunk}`;
+
+      // Run AI on the Sample
+      const [avatar, competitor, checklist, hooks, social] = await Promise.all([
+        openaiClient.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [{ role: "system", content: "You are a supportive literary agent." }, { role: "user", content: `Analyze this sample from a large manuscript (Language: ${language}) to create a "Target Audience Avatar". Sample:\n\n${combinedSample}` }]
+        }),
+        openaiClient.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [{ role: "system", content: "You are a supportive market analyst." }, { role: "user", content: `Analyze this sample from a large manuscript (Language: ${language}) for "Competitor Analysis". Sample:\n\n${combinedSample}` }]
+        }),
+        openaiClient.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [{ role: "system", content: "You are a cheerful launch coach." }, { role: "user", content: `Based on this sample from a large manuscript (Language: ${language}), create a "30-Day Launch Checklist". Sample:\n\n${combinedSample}` }]
+        }),
+        openaiClient.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [{ role: "system", content: "You are a creative branding expert." }, { role: "user", content: `Based on this sample from a large manuscript (Language: ${language}), generate 3 "Marketing Hook Suggestions". Sample:\n\n${combinedSample}` }]
+        }),
+        openaiClient.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [{ role: "system", content: "You are a social media strategist." }, { role: "user", content: `Based on this sample from a large manuscript (Language: ${language}), create a "Social Media Content Plan". Sample:\n\n${combinedSample}` }]
+        })
+      ]);
+
+      avatarText = avatar.choices[0].message.content;
+      competitorText = competitor.choices[0].message.content;
+      checklistText = checklist.choices[0].message.content;
+      hooksText = hooks.choices[0].message.content;
+      socialText = social.choices[0].message.content;
+
+    } else {
+      // Standard Processing for Smaller Books
+      console.log("🤖 Generating 5 AI Reports on Full Manuscript...");
+      const [avatar, competitor, checklist, hooks, social] = await Promise.all([
+        openaiClient.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [{ role: "system", content: "You are a supportive literary agent." }, { role: "user", content: `Analyze the FULL manuscript (Language: ${language}) and create a "Target Audience Avatar". Manuscript:\n\n${manuscriptText}` }]
+        }),
+        openaiClient.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [{ role: "system", content: "You are a supportive market analyst." }, { role: "user", content: `Analyze the FULL manuscript (Language: ${language}) and perform a "Competitor Analysis". Manuscript:\n\n${manuscriptText}` }]
+        }),
+        openaiClient.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [{ role: "system", content: "You are a cheerful launch coach." }, { role: "user", content: `Based on the FULL manuscript (Language: ${language}), create a "30-Day Launch Checklist". Manuscript:\n\n${manuscriptText}` }]
+        }),
+        openaiClient.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [{ role: "system", content: "You are a creative branding expert." }, { role: "user", content: `Based on the FULL manuscript (Language: ${language}), generate 3 powerful "Marketing Hook Suggestions". Manuscript:\n\n${manuscriptText}` }]
+        }),
+        openaiClient.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [{ role: "system", content: "You are a social media strategist." }, { role: "user", content: `Based on the FULL manuscript (Language: ${language}), create a "Social Media Content Plan". Manuscript:\n\n${manuscriptText}` }]
+        })
+      ]);
+
+      avatarText = avatar.choices[0].message.content;
+      competitorText = competitor.choices[0].message.content;
+      checklistText = checklist.choices[0].message.content;
+      hooksText = hooks.choices[0].message.content;
+      socialText = social.choices[0].message.content;
+    }
 
     // 3. Combine into Final Report
     const finalReport = {
@@ -88,13 +154,14 @@ export default async (event) => {
       title: bookTitle || "Unknown Title",
       author: authorName || "Unknown Author",
       language: language || "English",
+      wordCount: wordCount,
       generatedAt: new Date().toISOString(),
       reports: {
-        "1. Target Audience Avatar": avatar.choices[0].message.content,
-        "2. Competitor Analysis": competitor.choices[0].message.content,
-        "3. 30-Day Launch Checklist": checklist.choices[0].message.content,
-        "4. Marketing Hook Suggestions": hooks.choices[0].message.content,
-        "5. Social Media Content Plan": social.choices[0].message.content
+        "1. Target Audience Avatar": avatarText,
+        "2. Competitor Analysis": competitorText,
+        "3. 30-Day Launch Checklist": checklistText,
+        "4. Marketing Hook Suggestions": hooksText,
+        "5. Social Media Content Plan": socialText
       }
     };
 

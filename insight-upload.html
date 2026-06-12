@@ -52,7 +52,8 @@
             color: #1a1a2e; 
         }
         input[type="text"], 
-        input[type="email"] { 
+        input[type="email"],
+        select { 
             width: 100%; 
             padding: 12px; 
             margin-bottom: 20px; 
@@ -129,6 +130,26 @@
         .gold-link:hover {
             text-decoration: underline;
         }
+        /* ✅ PAYMENT CHOICE BUTTONS */
+        .payment-choice {
+            display: none;
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+        .btn-crypto {
+            background-color: #1a1a2e;
+            color: #d4af37;
+            margin-bottom: 15px;
+        }
+        .btn-card {
+            background-color: #635bff; /* Stripe Purple */
+            color: white;
+        }
+        .btn-card:hover {
+            background-color: #4b45c2;
+        }
     </style>
 </head>
 <body>
@@ -137,7 +158,7 @@
     <h1>Insight Manuscript Upload</h1>
     <div class="sub-header">For Elpis Insight Analysis (€39.99) Only. NOT for Publishing.</div>
     
-    <form id="insightUploadForm" enctype="multipart/form-data">
+    <form id="insightUploadForm">
         
         <label for="bookTitle">e-Book Title:</label>
         <input type="text" id="bookTitle" name="bookTitle" required placeholder="Enter the full title">
@@ -149,7 +170,7 @@
         <input type="email" id="authorEmail" name="authorEmail" required placeholder="name@example.com">
         
         <label for="language">Language of Manuscript:</label>
-        <select id="language" name="language" required style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; font-size: 1em; box-sizing: border-box;">
+        <select id="language" name="language" required>
             <option value="English">English</option>
             <option value="Greek">Greek</option>
             <option value="Spanish">Spanish</option>
@@ -168,13 +189,13 @@
             <option value="Hindi">Hindi</option>
             <option value="Other">Other</option>
         </select>
-        <!-- ✅ ADDED LANGUAGE NOTE -->
         <div class="note-small">Our AI Agents can analyze manuscripts in virtually any language. Select "Other" if your language is not listed.</div>
 
         <h2>📤 Upload Your Whole Manuscript (EPUB or PDF)</h2>
         <input type="file" id="manuscript" name="manuscript" accept=".epub,.pdf" required>
         <span class="note-small">We accept EPUB and PDF only. This file is for AI analysis only and will be deleted immediately after the report is generated.</span>
         
+        <!-- ✅ RESTORED LEGAL NOTE WITH THE MISSING SENTENCE -->
         <div class="note-small" style="margin-top: 10px; color: #856404;">
             We require the full manuscript to provide an accurate Market & Launch Blueprint. Our AI automatically screens for prohibited content: Pornography, racism, offensive language, terrorism, hate speech, or child sexual abuse material.
             <br><em>* Any other content that we, in our sole discretion, determine to be harmful, illegal, or unsuitable for our platform.</em>
@@ -182,7 +203,6 @@
 
         <div class="legal-box">
             <h3 style="margin-top:0;">⚖️ Analysis Agreement</h3>
-            <!-- ✅ ADDED GOLD LINK TO INSIGHT.HTML -->
             <p>By uploading, you agree and accept the legal disclaimer set out on <a href="insight.html" class="gold-link">Elpis Inside</a> and that this file is for Insight Analysis only. It will NOT be published on Elpis. You retain all rights.</p>
             
             <div class="checkbox-container">
@@ -195,10 +215,18 @@
 
         <button type="submit" class="btn-submit">Proceed to Inside Payment</button>
         
-        <!-- ✅ ADDED SECURITY NOTE -->
-        <p class="note" style="text-align: center; margin-top: 10px; font-size: 0.9em; color: #666;">
+        <!-- ✅ SECURITY NOTE (ALWAYS VISIBLE BELOW THE BUTTON) -->
+        <p class="note-small" style="text-align: center; margin-top: 10px; font-size: 0.9em; color: #666;">
             Secure payment via Card/Crypto. Report generated automatically upon payment.
         </p>
+
+        <!-- ✅ PAYMENT CHOICE SECTION (Hidden until upload is complete) -->
+        <div id="paymentChoice" class="payment-choice">
+            <h3 style="color:#1a1a2e;">Upload Successful! Choose Payment Method:</h3>
+            <p style="color:#666;">Price: €39.99</p>
+            <button type="button" id="payCryptoBtn" class="btn-submit btn-crypto">Pay with Crypto (MATIC)</button>
+            <button type="button" id="payCardBtn" class="btn-submit btn-card">Pay with Card (Stripe)</button>
+        </div>
 
         <div style="text-align: center;">
             <a href="insight.html" class="btn-home">← Back to Insight Page</a>
@@ -212,45 +240,109 @@
         
         const btn = document.querySelector('.btn-submit');
         const originalText = btn.innerText;
-        btn.innerText = "Uploading Securely...";
+        btn.innerText = "Getting Secure Upload Link...";
         btn.disabled = true;
 
-        const formData = new FormData();
-        formData.append('manuscript', document.getElementById('manuscript').files[0]);
-        formData.append('title', document.getElementById('bookTitle').value);
-        formData.append('email', document.getElementById('authorEmail').value);
-        formData.append('language', document.getElementById('language').value);
+        const fileInput = document.getElementById('manuscript');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert("Please select a file.");
+            btn.innerText = originalText;
+            btn.disabled = false;
+            return;
+        }
 
         try {
-            const uploadRes = await fetch('/.netlify/functions/temp-store-manuscript', {
-                method: 'POST',
-                body: formData
-            });
-
-            const uploadData = await uploadRes.json();
-            if (!uploadRes.ok) throw new Error(uploadData.error);
-
-            const paymentRes = await fetch('/.netlify/functions/create-payment', {
+            // 1. GET SIGNED URL FROM NETLIFY FUNCTION
+            const urlResponse = await fetch('/.netlify/functions/get-signed-url', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    bookTitle: `Insight_Report_${document.getElementById('bookTitle').value}`,
-                    price: 39.99,
-                    currency: "EUR",
-                    authorWallet: "ELPIS_WALLET",
-                    authorName: document.getElementById('authorName').value,
-                    authorEmail: document.getElementById('authorEmail').value,
-                    manuscriptHash: uploadData.hash,
-                    language: document.getElementById('language').value
-                })
+                body: JSON.stringify({ fileName: file.name })
             });
 
-            const paymentData = await paymentRes.json();
-            if (paymentRes.ok && paymentData.url) {
-                window.location.href = paymentData.url;
-            } else {
-                throw new Error(paymentData.error || "Payment creation failed");
-            }
+            if (!urlResponse.ok) throw new Error("Failed to get secure upload link.");
+            const urlData = await urlResponse.json();
+
+            // 2. UPLOAD FILE DIRECTLY TO PINATA
+            btn.innerText = "Uploading Manuscript to Secure Storage...";
+            const pinataFormData = new FormData();
+            pinataFormData.append('file', file);
+            pinataFormData.append('pinataMetadata', JSON.stringify({
+                name: file.name,
+                keyvalues: { type: "insight_analysis", author: document.getElementById('authorName').value }
+            }));
+
+            const pinataRes = await fetch(urlData.url, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${urlData.token}` },
+                body: pinataFormData
+            });
+
+            if (!pinataRes.ok) throw new Error("Pinata Upload Failed.");
+            const pinataData = await pinataRes.json();
+            const ipfsHash = pinataData.IpfsHash; 
+
+            if (!ipfsHash) throw new Error("Could not retrieve IPFS Hash.");
+
+            // 3. SHOW PAYMENT CHOICE
+            btn.style.display = 'none';
+            document.getElementById('paymentChoice').style.display = 'block';
+
+            // --- CRYPTO PAYMENT LOGIC ---
+            document.getElementById('payCryptoBtn').addEventListener('click', async () => {
+                document.getElementById('payCryptoBtn').innerText = "Processing Crypto...";
+                document.getElementById('payCryptoBtn').disabled = true;
+                
+                const paymentRes = await fetch('/.netlify/functions/create-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        bookTitle: `Insight_Report_${document.getElementById('bookTitle').value}`,
+                        price: 39.99,
+                        currency: "EUR",
+                        authorWallet: "ELPIS_WALLET",
+                        authorName: document.getElementById('authorName').value,
+                        authorEmail: document.getElementById('authorEmail').value,
+                        manuscriptHash: ipfsHash,
+                        language: document.getElementById('language').value
+                    })
+                });
+                const paymentData = await paymentRes.json();
+                if (paymentRes.ok && paymentData.url) {
+                    window.location.href = paymentData.url;
+                } else {
+                    alert("Crypto Error: " + paymentData.error);
+                    document.getElementById('payCryptoBtn').disabled = false;
+                }
+            });
+
+            // --- CARD PAYMENT LOGIC ---
+            document.getElementById('payCardBtn').addEventListener('click', async () => {
+                document.getElementById('payCardBtn').innerText = "Processing Card...";
+                document.getElementById('payCardBtn').disabled = true;
+
+                const stripeRes = await fetch('/.netlify/functions/create-stripe-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: `Insight_Report_${document.getElementById('bookTitle').value}`,
+                        price: 39.99,
+                        currency: 'eur',
+                        manuscriptHash: ipfsHash,
+                        language: document.getElementById('language').value,
+                        authorEmail: document.getElementById('authorEmail').value,
+                        authorName: document.getElementById('authorName').value
+                    })
+                });
+                const stripeData = await stripeRes.json();
+                if (stripeData.url) {
+                    window.location.href = stripeData.url;
+                } else {
+                    alert("Card Error: " + stripeData.message);
+                    document.getElementById('payCardBtn').disabled = false;
+                }
+            });
 
         } catch (error) {
             alert("Error: " + error.message);

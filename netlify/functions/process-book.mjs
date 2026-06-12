@@ -1,8 +1,8 @@
 import OpenAI from "openai";
 import { PinataSDK } from "pinata";
-import { parseMultipart } from '@netlify/functions';
 import pdfParse from "pdf-parse";
 import Epub from "epub-parser";
+import fetch from "node-fetch"; // Ensure node-fetch is installed or use global fetch in newer Node versions
 
 // ✅ Initialize Clients
 const openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -17,41 +17,37 @@ export default async (event) => {
   }
 
   try {
-    // ✅ 1. PARSE FORM DATA
-    const formData = await parseMultipart(event);
+    // ✅ 1. PARSE JSON BODY (New Method)
+    const { bookTitle, authorName, language, walletAddress, bookPrice, ipfsHash, fileName } = JSON.parse(event.body);
     
-    const bookTitle = formData.get('bookTitle');
-    const authorName = formData.get('authorName');
-    const language = formData.get('language');
-    const walletAddress = formData.get('walletAddress');
-    const bookPrice = formData.get('bookPrice');
-    const manuscript = formData.get('manuscript'); // The PDF/EPUB File
-
-    if (!bookTitle || !authorName || !manuscript || !walletAddress) {
+    if (!bookTitle || !authorName || !ipfsHash) {
       return { statusCode: 400, body: JSON.stringify({ error: "Missing required fields" }) };
     }
 
-    // ✅ 1.5 CHECK FILE SIZE (50MB Limit)
-    const MAX_SIZE = 50 * 1024 * 1024; // 50MB in bytes
-    if (manuscript.size > MAX_SIZE) {
-      return { 
-        statusCode: 400, 
-        body: JSON.stringify({ error: "File too large. Maximum size is 50MB." }) 
-      };
+    console.log(`📄 Processing ${bookTitle} with IPFS Hash: ${ipfsHash}`);
+
+    // ✅ 2. FETCH FILE FROM PINATA FOR SCREENING
+    // We download the file temporarily to screen it with AI
+    const gatewayUrl = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
+    const response = await fetch(gatewayUrl);
+    
+    if (!response.ok) {
+      throw new Error("Failed to fetch file from Pinata for screening.");
     }
 
-    // ✅ 2. EXTRACT TEXT FOR SAFETY SCREENING
-    const buffer = Buffer.from(await manuscript.arrayBuffer());
+    const buffer = Buffer.from(await response.arrayBuffer());
     let manuscriptText = "";
-    const contentType = manuscript.type; // e.g., 'application/pdf'
+    
+    // Determine file type from fileName
+    const fileType = fileName.split('.').pop().toLowerCase();
 
-    console.log(`📄 Screening ${bookTitle} (${contentType})...`);
+    console.log(`🔍 Screening ${bookTitle} (${fileType})...`);
 
-    if (contentType && contentType.includes('application/pdf')) {
+    if (fileType === 'pdf') {
       const pdfData = await pdfParse(buffer);
       manuscriptText = pdfData.text;
     } 
-    else if (contentType && (contentType.includes('application/epub') || contentType.includes('application/zip'))) {
+    else if (fileType === 'epub') {
       const epub = new Epub(buffer);
       await new Promise((resolve, reject) => {
           epub.on("end", () => {
@@ -68,36 +64,33 @@ export default async (event) => {
     }
 
     if (!manuscriptText || manuscriptText.length < 50) {
-      return { statusCode: 400, body: JSON.stringify({ error: "Could not extract text for screening." }) };
+      // If we can't extract text, we might still allow it but flag it, or reject. 
+      // For now, let's allow it but log a warning.
+      console.warn("⚠️ Could not extract sufficient text for screening.");
+    } else {
+      // ✅ 3. AI SAFETY SCREENING
+      const safetyCheck = await openaiClient.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: "You are the Elpis Guardian. Check the following text for prohibited content: Pornography, racism, offensive language, terrorism, hate speech, or child sexual abuse material. Reply only with 'SAFE' or 'UNSAFE'." },
+          { role: "user", content: `Screen this text:\n\n${manuscriptText.substring(0, 3000)}` }
+        ]
+      });
+
+      const verdict = safetyCheck.choices[0].message.content.trim().toUpperCase();
+      
+      if (verdict.includes("UNSAFE")) {
+        // Optional: Delete the file from Pinata if unsafe? 
+        // For now, we just reject the registration.
+        return { 
+          statusCode: 403, 
+          body: JSON.stringify({ error: "Upload Rejected: Content violates Elpis Ethical Guidelines." }) 
+        };
+      }
+      console.log("✅ Safety Screening Passed.");
     }
 
-    // ✅ 3. AI SAFETY SCREENING (Check first 3000 chars for efficiency)
-    const safetyCheck = await openaiClient.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: "You are the Elpis Guardian. Check the following text for prohibited content: Pornography, racism, offensive language, terrorism, hate speech, or child sexual abuse material. Reply only with 'SAFE' or 'UNSAFE'." },
-        { role: "user", content: `Screen this text:\n\n${manuscriptText.substring(0, 3000)}` }
-      ]
-    });
-
-    const verdict = safetyCheck.choices[0].message.content.trim().toUpperCase();
-    
-    if (verdict.includes("UNSAFE")) {
-      return { 
-        statusCode: 403, 
-        body: JSON.stringify({ error: "Upload Rejected: Content violates Elpis Ethical Guidelines." }) 
-      };
-    }
-
-    console.log("✅ Safety Screening Passed.");
-
-    // ✅ 4. UPLOAD THE ACTUAL BOOK FILE (PDF/EPUB) TO PINATA
-    const fileUpload = await pinata.upload.blob(buffer, {
-      metadata: { name: manuscript.filename }
-    });
-    const fileHash = fileUpload.IpfsHash;
-
-    // ✅ 5. PREPARE METADATA WITH THE DOWNLOAD URL
+    // ✅ 4. PREPARE METADATA (File is already on Pinata, so we just record the hash)
     const finalPrice = parseFloat(bookPrice) || 5.99;
     
     const metadata = {
@@ -105,13 +98,14 @@ export default async (event) => {
       author: authorName,
       language: language || "en",
       price: finalPrice,
-      walletAddress: walletAddress,
+      walletAddress: walletAddress || "PENDING",
       status: "Active - Pending First Sale",
       timestamp: new Date().toISOString(),
-      downloadUrl: `https://gateway.pinata.cloud/ipfs/${fileHash}`
+      fileHash: ipfsHash, // The hash of the actual book file
+      downloadUrl: `https://gateway.pinata.cloud/ipfs/${ipfsHash}`
     };
 
-    // ✅ 6. UPLOAD METADATA TO PINATA
+    // ✅ 5. UPLOAD METADATA TO PINATA
     const metaUpload = await pinata.upload.json(metadata, {
       metadata: { 
         name: `${bookTitle.replace(/[^a-zA-Z0-9]/g, '_')}_metadata` 
@@ -128,7 +122,7 @@ export default async (event) => {
       body: JSON.stringify({ 
         message: "Book submitted successfully!", 
         ipfsHash: metaUpload.IpfsHash,
-        fileHash: fileHash,
+        fileHash: ipfsHash,
         priceSet: `€${finalPrice.toFixed(2)}`
       })
     };

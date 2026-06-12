@@ -3,7 +3,6 @@ import stripe from 'stripe';
 // Initialize Stripe with your Secret Key from Netlify Environment Variables
 const stripeClient = stripe(process.env.STRIPE_SECRET_KEY);
 
-// ✅ CHANGED TO 'export default' FOR NETLIFY COMPATIBILITY
 export default async (event) => {
   // Only allow POST requests for security
   if (event.httpMethod !== 'POST') {
@@ -18,8 +17,8 @@ export default async (event) => {
   }
 
   try {
-    // Parse the data sent from your website (Book Title and Price)
-    const { title, price, currency, downloadUrl } = JSON.parse(event.body);
+    // Parse the data sent from your website
+    const { title, price, currency, downloadUrl, manuscriptHash, language, authorEmail, authorName } = JSON.parse(event.body);
 
     // Validate that we have the necessary info
     if (!title || !price) {
@@ -33,26 +32,44 @@ export default async (event) => {
       };
     }
 
+    // ✅ DETERMINE SUCCESS URL BASED ON PRODUCT TYPE
+    let successUrl;
+    
+    if (title.startsWith("Insight_Report_")) {
+      // For Insight Reports: Redirect to status page with hash & lang
+      if (!manuscriptHash) {
+        throw new Error("Manuscript Hash is missing for Insight Report");
+      }
+      successUrl = `https://elpishouse.xyz/report-status.html?hash=${manuscriptHash}&lang=${encodeURIComponent(language || 'English')}`;
+    } else {
+      // For Normal Book Sales: Redirect to Library/Success Page
+      successUrl = "https://elpishouse.xyz/books.html?success=true";
+    }
+
     // Create a Stripe Checkout Session
     const session = await stripeClient.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
           price_data: {
-            currency: currency || 'eur', // Default to Euro if not specified
+            currency: currency || 'eur',
             product_data: {
               name: title,
             },
-            unit_amount: Math.round(price * 100), // Stripe expects amount in cents (e.g., €5.00 = 500)
+            unit_amount: Math.round(price * 100), // Stripe expects amount in cents
           },
           quantity: 1,
         },
       ],
       mode: 'payment',
-      // IMPORTANT: We pass the download URL in metadata so the webhook knows where to send the user
+      // Pass all necessary data to the webhook via metadata
       metadata: {
         bookTitle: title,
-        downloadUrl: downloadUrl || '' 
+        downloadUrl: downloadUrl || '',
+        manuscriptHash: manuscriptHash || '',
+        language: language || 'English',
+        authorEmail: authorEmail || '',
+        authorName: authorName || ''
       },
       success_url: `${process.env.URL}/.netlify/functions/stripe-webhook?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.URL}/cancelled.html`,
@@ -76,7 +93,7 @@ export default async (event) => {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ message: 'Internal Server Error' })
+      body: JSON.stringify({ message: 'Internal Server Error', details: error.message })
     };
   }
 };
