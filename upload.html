@@ -322,8 +322,9 @@
 
             const urlData = await urlResponse.json();
             const uploadUrl = urlData.url;
+            const authToken = urlData.token; // Get the token from the response
 
-            // 2. UPLOAD FILE DIRECTLY TO PINATA USING SIGNED URL (CORRECTED)
+            // 2. UPLOAD FILE DIRECTLY TO PINATA USING SIGNED URL AND TOKEN
             btn.innerText = "Uploading Manuscript to Secure Storage...";
             
             const pinataFormData = new FormData();
@@ -339,11 +340,14 @@
             });
             pinataFormData.append('pinataMetadata', metadata);
 
-            // Use POST instead of PUT, and send FormData
+            // Send POST request with the Authorization Header
             const pinataRes = await fetch(uploadUrl, {
                 method: 'POST', 
                 body: pinataFormData,
-                // Do NOT set Content-Type header manually when using FormData!
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                }
+                // Do NOT set Content-Type manually for FormData!
             });
 
             if (!pinataRes.ok) {
