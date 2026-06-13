@@ -323,24 +323,37 @@
             const urlData = await urlResponse.json();
             const uploadUrl = urlData.url;
 
-            // 2. UPLOAD FILE DIRECTLY TO PINATA USING SIGNED URL
+            // 2. UPLOAD FILE DIRECTLY TO PINATA USING SIGNED URL (CORRECTED)
             btn.innerText = "Uploading Manuscript to Secure Storage...";
             
-            const pinataRes = await fetch(uploadUrl, {
-                method: 'PUT',
-                body: file,
-                headers: {
-                    'Content-Type': file.type
+            const pinataFormData = new FormData();
+            pinataFormData.append('file', file);
+            
+            // Add metadata so you can identify the file in Pinata
+            const metadata = JSON.stringify({
+                name: file.name,
+                keyvalues: {
+                    type: "book_manuscript",
+                    author: document.getElementById('authorName').value
                 }
+            });
+            pinataFormData.append('pinataMetadata', metadata);
+
+            // Use POST instead of PUT, and send FormData
+            const pinataRes = await fetch(uploadUrl, {
+                method: 'POST', 
+                body: pinataFormData,
+                // Do NOT set Content-Type header manually when using FormData!
             });
 
             if (!pinataRes.ok) {
-                throw new Error("Pinata Upload Failed.");
+                const errorData = await pinataRes.json().catch(() => ({}));
+                throw new Error("Pinata Upload Failed: " + (errorData.error || pinataRes.statusText));
             }
 
             // Pinata returns the IPFS Hash in the response body
             const pinataData = await pinataRes.json();
-            const ipfsHash = pinataData.IpfsHash || pinataData.hash; 
+            const ipfsHash = pinataData.IpfsHash; 
 
             if (!ipfsHash) {
                  throw new Error("Could not retrieve IPFS Hash.");
