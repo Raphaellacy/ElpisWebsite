@@ -1,11 +1,20 @@
 import { PinataSDK } from "pinata";
 
-const pinata = new PinataSDK({ 
-  pinataJwt: process.env.PINATA_JWT,
-  pinataGateway: process.env.PINATA_GATEWAY || 'gateway.pinata.cloud'
-});
-
 export const handler = async (event) => {
+  // 1. CHECK IF ENV VARIABLES EXIST
+  const jwt = process.env.PINATA_JWT;
+  if (!jwt) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "MISSING PINATA_JWT ENV VARIABLE" })
+    };
+  }
+
+  const pinata = new PinataSDK({ 
+    pinataJwt: jwt,
+    pinataGateway: process.env.PINATA_GATEWAY || 'gateway.pinata.cloud'
+  });
+
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
@@ -17,7 +26,7 @@ export const handler = async (event) => {
       return { statusCode: 400, body: JSON.stringify({ error: 'File name is required.' }) };
     }
 
-    // Generate a signed URL using the SDK (This creates a valid signature)
+    // 2. TRY TO GENERATE URL
     const signedUrl = await pinata.upload.generateSignedURL({
       expiresInSeconds: 60,
       metadata: {
@@ -37,7 +46,14 @@ export const handler = async (event) => {
     };
 
   } catch (error) {
-    console.error("Signed URL Error:", error);
-    return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
+    // 3. RETURN THE EXACT ERROR MESSAGE TO THE BROWSER
+    return { 
+      statusCode: 500, 
+      body: JSON.stringify({ 
+        error: "Function Crashed", 
+        details: error.message,
+        stack: error.stack 
+      }) 
+    };
   }
 };
